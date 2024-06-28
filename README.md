@@ -1,1 +1,1 @@
-# twitter-sentiment-analysis
+# stock-market-predictor
