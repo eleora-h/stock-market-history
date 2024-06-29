@@ -19,6 +19,9 @@ class CLI():
             elif parsed_input in ('-t', '--tickers'):
                 self.polygon.get_tickers()
                 self.__get_ticker_menu()
+            elif parsed_input.startswith('--vis') or parsed_input.startswith('-v'):
+                ticker = parsed_input.split('"')[1]
+                self.polygon.get_visual_history(ticker)
             elif parsed_input in ('-q', '--quit'):
                 break
             else:
@@ -27,6 +30,7 @@ class CLI():
     def __get_help_menu(self):
         help_text = """
             --help, -h for help                               \t--tickers, -t to get all available tickers
+            --vis "TICKER_NAME", -v "TICKER_NAME" for visual history of a given ticker
         """
         print(help_text)
 

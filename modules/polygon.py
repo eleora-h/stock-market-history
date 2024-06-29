@@ -63,3 +63,6 @@ class Polygon():
                 self.tickers[shorthand] = info
         except Exception as e:
             raise Exception('Unexpected error while parsing ticker data. Terminating program. Error: ' + str(e))
+        
+    def get_visual_history(self):
+        print('to do')
