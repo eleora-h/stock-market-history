@@ -1,6 +1,3 @@
-# imports
-#import polygon
-
-import cli
+import modules.cli as cli
 
 CLI = cli.CLI()

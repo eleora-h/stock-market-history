@@ -9,12 +9,7 @@ class Polygon():
         self.auth_token = self.__get_authentication_key()
         self.__configure_logger()
         self.tickers = {}
-
-    def __get_authentication_key(self):
-        reader = open('credentials')
-        reader = reader.read()
-        key = reader.split(":")[1].strip()
-        return key
+        self.__set_tickers()
 
     def __configure_logger(self):
         logging.basicConfig(
@@ -23,9 +18,13 @@ class Polygon():
             datefmt='%m-%d-%Y %I:%M:%S%p'
         )
 
+    def __get_authentication_key(self):
+        reader = open('credentials')
+        reader = reader.read()
+        key = reader.split(":")[1].strip()
+        return key
+    
     def get_tickers(self):
-        if not self.tickers:
-            self.__set_tickers()
         print('\nList of available tickers:')
         for t in self.tickers:
             print(t)
@@ -40,7 +39,7 @@ class Polygon():
     @retry(RuntimeError, tries=3, delay=30)
     # didn't add support for pagination because this is a demo and rate limited on API as a free user
     def __set_tickers(self):
-        logging.debug('entering ticker call')
+        logging.debug('Entering __set_tickers call')
         url = "https://api.polygon.io/v3/reference/tickers?active=true&limit=100&apiKey={0}".format(self.auth_token)
         response = requests.get(url)
         if response.status_code == 200:
@@ -64,5 +63,11 @@ class Polygon():
         except Exception as e:
             raise Exception('Unexpected error while parsing ticker data. Terminating program. Error: ' + str(e))
         
-    def get_visual_history(self):
+    def get_news(self, ticker):
         print('to do')
+
+    def get_dividends(self, ticker):
+        print('to do')
+
+polygontest = Polygon()
+polygontest.get_news("ABBC")

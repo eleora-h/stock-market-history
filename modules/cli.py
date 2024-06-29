@@ -1,5 +1,5 @@
 import os
-import polygon
+import modules.polygon as polygon
 
 class CLI():
     def __init__(self):
@@ -9,19 +9,19 @@ class CLI():
 
     def __build_interface(self):
         while True:
-            interface_text = """
-            What to do next?
-            """
-            print(interface_text)
+            self.__get_help_menu()
             parsed_input = input().lower()
             if parsed_input in ('-h', '--help'):
                 self.__get_help_menu()
             elif parsed_input in ('-t', '--tickers'):
                 self.polygon.get_tickers()
                 self.__get_ticker_menu()
-            elif parsed_input.startswith('--vis') or parsed_input.startswith('-v'):
+            elif parsed_input.startswith('--news') or parsed_input.startswith('-n'):
                 ticker = parsed_input.split('"')[1]
-                self.polygon.get_visual_history(ticker)
+                self.polygon.get_news(ticker)
+            elif parsed_input.startswith('--dividends') or parsed_input.startswith('-d'):
+                ticker = parsed_input.split('"')[1]
+                self.polygon.get_dividends(ticker)
             elif parsed_input in ('-q', '--quit'):
                 break
             else:
@@ -29,8 +29,14 @@ class CLI():
 
     def __get_help_menu(self):
         help_text = """
-            --help, -h for help                               \t--tickers, -t to get all available tickers
-            --vis "TICKER_NAME", -v "TICKER_NAME" for visual history of a given ticker
+        ==============================================================================
+        MAIN MENU
+        ----------
+        |    TS stands for ticker symbol.
+        |    --help, -h for help                                     \t-q, --quit to quit
+        |    --tickers, -t to get all available tickers              \t--news "TS", -n "TS" to get most recent news about a ticker
+        |    --dividends "TS", -d "TS" for historical dividents 
+        ==============================================================================
         """
         print(help_text)
 
