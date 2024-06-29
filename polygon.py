@@ -30,6 +30,13 @@ class Polygon():
         for t in self.tickers:
             print(t)
 
+    def get_ticker_info(self, ticker):
+        ticker_upper = ticker.upper()
+        if ticker_upper in self.tickers:
+            print(self.tickers[ticker_upper])
+        else:
+            print('Ticker not found. Please make sure you are providing the ticker shorthand.')
+
     @retry(RuntimeError, tries=3, delay=30)
     # didn't add support for pagination because this is a demo and rate limited on API as a free user
     def __set_tickers(self):

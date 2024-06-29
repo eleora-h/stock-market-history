@@ -5,13 +5,18 @@ class CLI():
     def __init__(self):
         self.polygon = polygon.Polygon()
         self.run()
+        self.first_run = False
 
     def __build_interface(self):
         while True:
+            interface_text = """
+            What to do next?
+            """
+            print(interface_text)
             parsed_input = input().lower()
             if parsed_input in ('-h', '--help'):
                 self.__get_help_menu()
-            elif parsed_input in ('-t', '--ticker'):
+            elif parsed_input in ('-t', '--tickers'):
                 self.polygon.get_tickers()
                 self.__get_ticker_menu()
             elif parsed_input in ('-q', '--quit'):
@@ -26,15 +31,16 @@ class CLI():
         print(help_text)
 
     def __get_ticker_menu(self):
-        ticker_menu_text = """
-            If you would like to find out more about a specific stock, please enter --info "ticker_name" or -i "ticker_name".
-            Else enter any key to go back. 
-        """
-        print(ticker_menu_text)
         while True:
+            ticker_menu_text = """
+                If you would like to find out more about a specific stock, please enter --info "ticker_name" or -i "ticker_name".
+                Else enter any key to go back. 
+            """
+            print(ticker_menu_text)
             parsed_input = input().lower()
             if parsed_input.startswith('--info') or parsed_input.startswith('-i'):
-                print('to do')
+                ticker = parsed_input.split('"')[1]
+                self.polygon.get_ticker_info(ticker)
             else:
                 break
 
