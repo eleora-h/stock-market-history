@@ -11,10 +11,13 @@ class CLI():
             parsed_input = input().lower()
             if parsed_input in ('-h', '--help'):
                 self.__get_help_menu()
-            elif parsed_input in ('-t'):
+            elif parsed_input in ('-t', '--ticker'):
                 self.polygon.get_tickers()
-            else:
+                self.__get_ticker_menu()
+            elif parsed_input in ('-q', '--quit'):
                 break
+            else:
+                print('Command entered not recognized. Please type -q to quit or -h for more options.')
 
     def __get_help_menu(self):
         help_text = """
