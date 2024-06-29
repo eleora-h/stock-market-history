@@ -1,5 +1,6 @@
 # imports
-import polygon
+#import polygon
 
-p = polygon.Polygon()
-p.run()
+import cli
+
+CLI = cli.CLI()
