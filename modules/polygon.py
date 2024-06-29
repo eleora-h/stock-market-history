@@ -1,5 +1,6 @@
 import requests
 import logging
+import modules.graphs as graphs
 from retry import retry
 
 # https://polygon.io/docs/stocks/get_v2_aggs_ticker__stocksticker__range__multiplier___timespan___from___to
@@ -36,22 +37,23 @@ class Polygon():
         else:
             print('Ticker not found. Please make sure you are providing the ticker shorthand.')
 
-    @retry(RuntimeError, tries=3, delay=30)
-    # didn't add support for pagination because this is a demo and rate limited on API as a free user
-    def __set_tickers(self):
-        logging.debug('Entering __set_tickers call')
-        url = "https://api.polygon.io/v3/reference/tickers?active=true&limit=100&apiKey={0}".format(self.auth_token)
+    # Default wrapper method for calling the Polygon API. No pagination support because demo and rate limited on API as a free user.
+    @retry(RuntimeError, tries=3, delay=120)
+    def __send_polygon_request(self, url):
+        logging.info('Entering Polygon API request call.')
         response = requests.get(url)
         if response.status_code == 200:
-            logging.debug('Tickers pulled successfully.')
-            self.__parse_tickers(response.json())
+            logging.info('Response successful.')
+            return response.json()
         else:
-            logging.info('Timing out on connecting to API in polygon get_tickers call. Retrying...')
-            raise RuntimeError()
+            logging.info('Timing out on connecting to API in polygon get_tickers call. Retrying in 120 seconds.')
+            raise RuntimeError("Timed out, retrying in 120 seconds.")
 
-    def __parse_tickers(self, dict):
+    def __set_tickers(self):
+        url = "https://api.polygon.io/v3/reference/tickers?active=true&limit=100&apiKey={0}".format(self.auth_token)
+        response = self.__send_polygon_request(url)
         try:
-            for t in dict.get('results'):
+            for t in response.get('results'):
                 shorthand = t['ticker']
                 info = {
                     'name': t['name'],
@@ -64,10 +66,55 @@ class Polygon():
             raise Exception('Unexpected error while parsing ticker data. Terminating program. Error: ' + str(e))
         
     def get_news(self, ticker):
-        print('to do')
+        url = "https://api.polygon.io/v2/reference/news?limit=3&ticker={0}&apiKey={1}".format(ticker, self.auth_token)
+        response = self.__send_polygon_request(url)
+        if response.get('results'):
+            print('Success!')
+        else:
+            print('No results found :(.\nRetrying for all tickers to demo feature.')
+            url = "https://api.polygon.io/v2/reference/news?limit=3&apiKey={0}".format(self.auth_token)
+            response = self.__send_polygon_request(url)
+            if not response.get('results'):
+                raise RuntimeError('No news results could be found at time, suspected error lies with API. Please try program again later.')
+        title = """
+        -----------------
+        NEWS RESULTS
+        -----------------
+        """
+        print(title)
+        try:
+            for n in response.get('results'):
+                n_string = """
+                TITLE: {0}
+                AUTHOR: {1}
+                URL: {2}
+                DATE: {3}
+                """.format(n['title'], n['author'], n['article_url'], n['published_utc'])
+                print(n_string)
+        except Exception as e:
+            raise Exception('Unexpected error while parsing news data. Terminating program. Error: ' + str(e))
 
     def get_dividends(self, ticker):
-        print('to do')
-
-polygontest = Polygon()
-polygontest.get_news("ABBC")
+        url = "https://api.polygon.io/v3/reference/dividends?ticker={0}&limit=10&apiKey={1}".format(ticker, self.auth_token)
+        response = self.__send_polygon_request(url)
+        try:
+            x_axis = []
+            y_axis = []
+            title = """
+        -----------------
+        DIVIDENDS for {0}
+        Returned in date: $ (dividend type)
+        -----------------
+            """.format(ticker)
+            print(title)
+            if not response.get('results'):
+                print('No results found for {0}. Try -d "ABBV" for a demo.'.format(ticker))
+            else:
+                for d in response.get('results'):
+                    d_string = '{0}: ${1} ({2})'.format(d['pay_date'], d['cash_amount'], d['dividend_type'])
+                    print(d_string)
+                    x_axis.append(d['pay_date'])
+                    y_axis.append(d['cash_amount'])
+                graphs.graph(x_axis, y_axis, 'Dividends for {0} over Time (USD $)'.format(ticker), 'Date', 'Cash Amount (%)')
+        except Exception as e:
+            raise Exception('Unexpected error while parsing dividend data. Terminating program. Error: ' + str(e))

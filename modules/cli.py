@@ -4,8 +4,6 @@ import modules.polygon as polygon
 class CLI():
     def __init__(self):
         self.polygon = polygon.Polygon()
-        self.run()
-        self.first_run = False
 
     def __build_interface(self):
         while True:
@@ -17,11 +15,17 @@ class CLI():
                 self.polygon.get_tickers()
                 self.__get_ticker_menu()
             elif parsed_input.startswith('--news') or parsed_input.startswith('-n'):
-                ticker = parsed_input.split('"')[1]
-                self.polygon.get_news(ticker)
+                try:
+                    ticker = parsed_input.split('"')[1]
+                    self.polygon.get_news(ticker.upper())
+                except IndexError:
+                    print('You formatted the command incorrectly. Try again.')
             elif parsed_input.startswith('--dividends') or parsed_input.startswith('-d'):
-                ticker = parsed_input.split('"')[1]
-                self.polygon.get_dividends(ticker)
+                try:
+                    ticker = parsed_input.split('"')[1]
+                    self.polygon.get_dividends(ticker.upper())
+                except IndexError:
+                    print('You formatted the command correctly. Try again.')
             elif parsed_input in ('-q', '--quit'):
                 break
             else:
@@ -30,7 +34,7 @@ class CLI():
     def __get_help_menu(self):
         help_text = """
         ==============================================================================
-        MAIN MENU
+        | MAIN MENU
         ----------
         |    TS stands for ticker symbol.
         |    --help, -h for help                                     \t-q, --quit to quit
@@ -62,4 +66,4 @@ class CLI():
         """
         print(start_text)
         self.__build_interface()
-        print('Thanks for testing program!')
+        print('Thanks for testing! :)')
